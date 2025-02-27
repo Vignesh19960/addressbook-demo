@@ -1,13 +1,30 @@
-node{
-    stage('code checkout'){
-        git 'https://github.com/shubhamkushwah123/addressbook-demo.git'
+pipeline {
+    agent any
+
+    environment {
+        GIT_REPO = 'https://github.com/Vignesh19960/addressbook-demo.git'
     }
-    
-    stage('clean.. compile... test... package...'){
-        sh 'mvn clean package'
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git GIT_REPO
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package'  // Builds the JAR/WAR file
+            }
+        }
     }
-    
-    stage('deploy to tomcat'){
-        deploy adapters: [tomcat9(credentialsId: 'tomcat-creds', path: '', url: 'http://3.92.185.25:8085/')], contextPath: 'addressbook', war: '**/*.war'
+
+    post {
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
     }
 }
